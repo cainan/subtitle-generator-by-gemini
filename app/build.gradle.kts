@@ -71,6 +71,8 @@ dependencies {
 
     // add the dependency for the Google AI client SDK for Android
     implementation(libs.generativeai)
+
+    implementation(libs.coil.compose)
 }
 
 // 2. Optionally configure the plugin
