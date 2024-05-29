@@ -1,6 +1,5 @@
 package com.cso.subtitlegenerator.ui.screen
 
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -19,10 +18,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -33,17 +30,22 @@ import coil.compose.AsyncImage
 import com.cso.subtitlegenerator.MainActivity
 import com.cso.subtitlegenerator.R
 import com.cso.subtitlegenerator.ui.theme.SubtitleGeneratorTheme
+import com.cso.subtitlegenerator.ui.uistate.HomeUiState
+import com.cso.subtitlegenerator.ui.viewmodel.HomeViewModel
 
+@Composable
+fun HomeScreen(viewModel: HomeViewModel, onGenerateClicked: () -> Unit = {}) {
+    val uiState by viewModel.uiState.collectAsState()
+    HomeScreen(uiState, onGenerateClicked)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    var selectedImage by remember {
-        mutableStateOf<Uri?>(null)
-    }
+fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
+
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImage = uri }
+        onResult = { uri -> uiState.onImageUriChanged(uri) }
     )
 
     fun launchPhotoPicker() {
@@ -67,7 +69,7 @@ fun HomeScreen() {
             Text(text = "Escolha uma imagem para ser analisada")
             Spacer(modifier = Modifier.height(16.dp))
             AsyncImage(
-                model = selectedImage,
+                model = uiState.imageUri,
                 contentDescription = null,
 //                placeholder = BitmapPainter(ImageBitmap.imageResource(id = R.drawable.ic_launcher_background)),
                 modifier = Modifier
@@ -82,30 +84,34 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = "textoEntrada1",
-                onValueChange = { TODO() },
-                label = { Text("Entrada de texto 1") },
+                value = uiState.humor,
+                onValueChange = {
+                    uiState.onHumorChanged(it)
+                },
+                label = { Text("Descreva o humor da legenda") },
                 modifier = Modifier.fillMaxWidth(0.8f)
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = "textoEntrada2",
-                onValueChange = { TODO() },
-                label = { Text("Entrada de texto 2") },
+                value = uiState.humor,
+                onValueChange = {
+                    TODO()
+                },
+                label = { Text("") },
                 modifier = Modifier.fillMaxWidth(0.8f)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { /* Clique no botão */ },
+                onClick = {
+                    onGenerateClicked()
+                },
                 modifier = Modifier.fillMaxWidth(0.8f)
             ) {
-                Text("BOTÃO")
+                Text("Gerar Legenda")
             }
         }
 
     }
-
-
 }
 
 
@@ -113,6 +119,6 @@ fun HomeScreen() {
 @Composable
 fun DefaultPreview() {
     SubtitleGeneratorTheme {
-        HomeScreen()
+        HomeScreen(HomeViewModel())
     }
 }
