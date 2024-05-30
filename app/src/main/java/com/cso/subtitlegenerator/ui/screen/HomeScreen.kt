@@ -11,7 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -23,10 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.cso.subtitlegenerator.MainActivity
 import com.cso.subtitlegenerator.R
 import com.cso.subtitlegenerator.ui.theme.SubtitleGeneratorTheme
@@ -61,17 +68,20 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
 //            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Escolha uma imagem para ser analisada")
             Spacer(modifier = Modifier.height(16.dp))
             AsyncImage(
-                model = uiState.imageUri,
+                model = ImageRequest.Builder(LocalContext.current).data(uiState.imageUri)
+                    .crossfade(true).build(),
                 contentDescription = null,
-//                placeholder = BitmapPainter(ImageBitmap.imageResource(id = R.drawable.ic_launcher_background)),
+                placeholder = painterResource(android.R.drawable.ic_menu_upload),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
@@ -89,7 +99,7 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
                     uiState.onHumorChanged(it)
                 },
                 label = { Text("Descreva o humor da legenda") },
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
@@ -98,16 +108,32 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
                     TODO()
                 },
                 label = { Text("") },
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
                     onGenerateClicked()
                 },
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Gerar Legenda")
+            }
+
+            if (uiState.generatedSubtitle.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Divider()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = uiState.generatedSubtitle,
+                    modifier = Modifier.selectable(
+                        selected = true,
+                        enabled = true,
+                        role = null,
+                        onClick = {
+                        print("**Clicked**")
+                    })
+                )
             }
         }
 
@@ -119,6 +145,6 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
 @Composable
 fun DefaultPreview() {
     SubtitleGeneratorTheme {
-        HomeScreen(HomeViewModel())
+        HomeScreen(HomeUiState(generatedSubtitle = "Teste"))
     }
 }

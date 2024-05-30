@@ -1,12 +1,16 @@
 package com.cso.subtitlegenerator.ui.viewmodel
 
-import android.provider.MediaStore
+import android.app.Application
+import android.graphics.ImageDecoder
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.cso.subtitlegenerator.BuildConfig
 import com.cso.subtitlegenerator.ui.uistate.HomeUiState
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.BlockThreshold
+import com.google.ai.client.generativeai.type.HarmCategory
+import com.google.ai.client.generativeai.type.SafetySetting
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,21 +18,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         const val TAG = "HomeViewModel"
     }
 
+    private val cr = application.contentResolver
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState>
         get() = _uiState.asStateFlow()
 
-    val gemini = GenerativeModel(
+    private val harassmentSafety =
+        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.LOW_AND_ABOVE)
+    private val hateSpeechSafety =
+        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.LOW_AND_ABOVE)
+    private val gemini = GenerativeModel(
         // The Gemini 1.5 models are versatile and work with most use cases
         modelName = "gemini-1.5-flash",
         // Access your API key as a Build Configuration variable (see "Set up your API key" above)
-        apiKey = BuildConfig.apiKey
+        apiKey = BuildConfig.apiKey,
+        safetySettings = listOf(
+            harassmentSafety, hateSpeechSafety
+        )
     )
 
     init {
@@ -54,19 +66,27 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             Log.d(TAG, "Generate Subtitle")
 
-//            val image =
-//                MediaStore.Images.Media.getBitmap(coroutineContext., uiState.value.imageUri);
-//
-//            val inputContent = content {
-//                image(image)
-//
-//                text("Descreva imagem com humor ${uiState.value.humor}")
-//            }
-//            var fullResponse = ""
-//            gemini.generateContentStream(inputContent).collect { chunk ->
-//                print(chunk.text)
-//                fullResponse += chunk.text
-//            }
+
+            val source =
+                ImageDecoder.createSource(cr, uiState.value.imageUri!!)
+            val image = ImageDecoder.decodeBitmap(source)
+
+            val inputContent = content {
+                image(image)
+                text("Descreva imagem com humor ${uiState.value.humor}")
+            }
+
+            var fullResponse = ""
+            gemini.generateContentStream(inputContent).collect { chunk ->
+                print(chunk.text)
+                fullResponse += chunk.text
+            }
+
+            Log.d(TAG, "Response: $fullResponse")
+
+            _uiState.value = _uiState.value.copy(
+                generatedSubtitle = fullResponse
+            )
         }
     }
 }

@@ -7,4 +7,5 @@ data class HomeUiState(
     val onHumorChanged: (String) -> Unit = {},
     var imageUri: Uri? = null,
     val onImageUriChanged: (Uri?) -> Unit = {},
+    val generatedSubtitle : String = ""
 )
