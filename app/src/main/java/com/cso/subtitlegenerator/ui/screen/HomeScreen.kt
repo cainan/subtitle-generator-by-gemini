@@ -1,6 +1,11 @@
 package com.cso.subtitlegenerator.ui.screen
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,14 +46,14 @@ import com.cso.subtitlegenerator.ui.uistate.HomeUiState
 import com.cso.subtitlegenerator.ui.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onGenerateClicked: () -> Unit = {}) {
+fun HomeScreen(context: Context?, viewModel: HomeViewModel, onGenerateClicked: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsState()
-    HomeScreen(uiState, onGenerateClicked)
+    HomeScreen(context, uiState, onGenerateClicked)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
+fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
 
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -131,8 +136,18 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
                         enabled = true,
                         role = null,
                         onClick = {
-                        print("**Clicked**")
-                    })
+                            val clipboardManager =
+                                context?.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+                            val clipData =
+                                ClipData.newPlainText("Subtitle copied", uiState.generatedSubtitle)
+
+                            clipboardManager.setPrimaryClip(clipData)
+
+                            Toast.makeText(context, "Copied to Clipboard", Toast.LENGTH_SHORT)
+                                .show()
+
+                        })
                 )
             }
         }
@@ -145,6 +160,6 @@ fun HomeScreen(uiState: HomeUiState, onGenerateClicked: () -> Unit = {}) {
 @Composable
 fun DefaultPreview() {
     SubtitleGeneratorTheme {
-        HomeScreen(HomeUiState(generatedSubtitle = "Teste"))
+        HomeScreen(context = null, HomeUiState(generatedSubtitle = "Teste"))
     }
 }
