@@ -73,7 +73,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
             val inputContent = content {
                 image(image)
-                text("Descreva imagem com humor ${uiState.value.humor}")
+                text("Você é um influenciador." +
+                        "Crie uma legenda para a imagem indicada usando um tom de humor ${uiState.value.humor}," +
+                        "esta foto será postada em uma plataforma digital")
             }
 
             var fullResponse = ""

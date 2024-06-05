@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -31,6 +33,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,7 +80,6 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
-//            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Escolha uma imagem para ser analisada")
@@ -86,15 +88,16 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 model = ImageRequest.Builder(LocalContext.current).data(uiState.imageUri)
                     .crossfade(true).build(),
                 contentDescription = null,
-                placeholder = painterResource(android.R.drawable.ic_menu_upload),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
+                    .border(1.dp, Color.Gray, RoundedCornerShape(2.dp))
                     .clickable {
                         Log.d(MainActivity.TAG, "AsyncImageClicked")
                         launchPhotoPicker()
                     },
                 contentScale = ContentScale.Fit,
+                placeholder = painterResource(R.drawable.upload_24px),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,24 +106,26 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 onValueChange = {
                     uiState.onHumorChanged(it)
                 },
+                maxLines = 1,
                 label = { Text("Descreva o humor da legenda") },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = uiState.humor,
-                onValueChange = {
-                    TODO()
-                },
-                label = { Text("") },
-                modifier = Modifier.fillMaxWidth()
-            )
             Spacer(modifier = Modifier.height(16.dp))
+//            OutlinedTextField(
+//                value = uiState.humor,
+//                onValueChange = {
+//                    TODO()
+//                },
+//                label = { Text("") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
                     onGenerateClicked()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState.canGenerate()
             ) {
                 Text("Gerar Legenda")
             }
