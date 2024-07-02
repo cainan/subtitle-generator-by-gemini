@@ -82,7 +82,7 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Escolha uma imagem para ser analisada")
+            Text(text = "Escolha uma imagem para gerar a legenda")
             Spacer(modifier = Modifier.height(16.dp))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(uiState.imageUri)
@@ -98,6 +98,7 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                     },
                 contentScale = ContentScale.Fit,
                 placeholder = painterResource(R.drawable.upload_24px),
+                error = painterResource(R.drawable.upload_24px),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -110,16 +111,9 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 label = { Text("Descreva o humor da legenda") },
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(16.dp))
-//            OutlinedTextField(
-//                value = uiState.humor,
-//                onValueChange = {
-//                    TODO()
-//                },
-//                label = { Text("") },
-//                modifier = Modifier.fillMaxWidth()
-//            )
-//            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
                 onClick = {
                     onGenerateClicked()
@@ -156,7 +150,6 @@ fun HomeScreen(context: Context?, uiState: HomeUiState, onGenerateClicked: () ->
                 )
             }
         }
-
     }
 }
 
