@@ -65,7 +65,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun generateSubtitle() {
         viewModelScope.launch {
             Log.d(TAG, "Generate Subtitle")
-
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+            )
 
             val source =
                 ImageDecoder.createSource(cr, uiState.value.imageUri!!)
@@ -73,9 +75,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
             val inputContent = content {
                 image(image)
-                text("Você é um influenciador." +
-                        "Crie uma legenda para a imagem indicada usando um tom de humor ${uiState.value.humor}," +
-                        "esta foto será postada em uma plataforma digital")
+                text(
+                    "Você é um influenciador." +
+                            "Crie uma legenda para a imagem indicada usando um tom de humor ${uiState.value.humor}," +
+                            "esta foto será postada em uma plataforma digital"
+                )
             }
 
             var fullResponse = ""
@@ -87,7 +91,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             Log.d(TAG, "Response: $fullResponse")
 
             _uiState.value = _uiState.value.copy(
-                generatedSubtitle = fullResponse
+                generatedSubtitle = fullResponse,
+                isLoading = false,
             )
         }
     }
