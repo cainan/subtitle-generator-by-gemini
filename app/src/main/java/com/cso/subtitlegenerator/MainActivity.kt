@@ -24,9 +24,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SubtitleGeneratorTheme {
-                HomeScreen(context = this, viewModel = viewModel, onGenerateClicked = {
-                    viewModel.generateSubtitle()
-                })
+                HomeScreen(
+                    context = this, viewModel = viewModel,
+                    onGenerateClicked = {
+                        viewModel.generateSubtitle()
+                    },
+                    onDialogClicked = {
+                        viewModel.onDialogClicked(it)
+                    },
+                )
             }
         }
     }

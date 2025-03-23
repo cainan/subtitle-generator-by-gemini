@@ -93,7 +93,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = _uiState.value.copy(
                 generatedSubtitle = fullResponse,
                 isLoading = false,
+                isPopupDisplayed = true,
             )
         }
+    }
+
+    fun onDialogClicked(isDisplayed: Boolean) {
+        _uiState.value = _uiState.value.copy(
+            isPopupDisplayed = isDisplayed,
+        )
     }
 }

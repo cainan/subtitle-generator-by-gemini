@@ -9,6 +9,7 @@ data class HomeUiState(
     val onImageUriChanged: (Uri?) -> Unit = {},
     val generatedSubtitle: String = "",
     var isLoading : Boolean = false,
+    var isPopupDisplayed : Boolean = false,
 ) {
     fun canGenerate(): Boolean {
         return imageUri != null
